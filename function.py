@@ -4,9 +4,6 @@ from enum import Enum
 from dataclasses import dataclass
 
 
-from enum import Enum
-
-
 class TokenClass(Enum):
     PONTO_FLUTUANTE = r"\d+\.\d+"
     CONSTANTE_INTEIRA = r"\b\d+\b"
@@ -28,7 +25,7 @@ class Token:
     column: int
 
     def __str__(self):
-        return f'<{self.token_class.name}> {self.lexeme} </{self.token_class.name}>'
+        return f'<{self.token_class.name}> {self.lexeme}'
 
 
 def parse_code(code):
@@ -214,8 +211,8 @@ def equality():
 
 def comparison():
     term()
-    while check(TokenClass.OPERADOR, ["<", ">", "<=", ">="]):
-        match(TokenClass.OPERADOR)
+    while check(TokenClass.OPERADOR) and tokens[token_index].lexeme in ["<", ">", "<=", ">="]:
+        next_token()
         term()
 
 
@@ -263,7 +260,32 @@ def call():
     return node
 
 
+# def primary():
+#     print("primary")
+#     if check(TokenClass.PALAVRA_RESERVADA, "true") or \
+#        check(TokenClass.PALAVRA_RESERVADA, "false") or \
+#        check(TokenClass.PALAVRA_RESERVADA, "nil") or \
+#        check(TokenClass.PALAVRA_RESERVADA, "this"):
+#         next_token()
+#     elif check(TokenClass.CONSTANTE_INTEIRA) or check(TokenClass.CONSTANTE_TEXTO):
+#         next_token()
+#     elif check(TokenClass.IDENTIFICADOR):
+#         next_token()
+#     elif check(TokenClass.PALAVRA_RESERVADA, "super"):
+#         next_token()
+#         match(TokenClass.DELIMITADOR, ".")
+#         match(TokenClass.IDENTIFICADOR)
+#     elif check(TokenClass.DELIMITADOR, "("):
+#         next_token()
+#         expression()
+#         match(TokenClass.DELIMITADOR, ")")
+#     else:
+#         raise SyntaxError("\nToken inesperado na expressão primária")
+
+
 def primary():
+    if check(TokenClass.DELIMITADOR, "{"):
+        block()
     if check(TokenClass.PALAVRA_RESERVADA, "true") or \
        check(TokenClass.PALAVRA_RESERVADA, "false") or \
        check(TokenClass.PALAVRA_RESERVADA, "nil") or \
@@ -282,7 +304,9 @@ def primary():
         expression()
         match(TokenClass.DELIMITADOR, ")")
     else:
-        raise SyntaxError("\nToken inesperado na expressão primária")
+        token = None if end_of_file() else tokens[token_index]
+        raise SyntaxError(
+            f"\nToken inesperado na expressão primária: {token.token_class.name} {token.lexeme}")
 
 
 def function():
@@ -342,6 +366,7 @@ def next_token():
 
     if not end_of_file():
         token = tokens[token_index]
+        print(f"Token atual: {token}")
         token_index += 1
         return token
     else:
