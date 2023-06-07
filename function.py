@@ -31,21 +31,6 @@ class Token:
         return f'<{self.token_class.name}> {self.lexeme} </{self.token_class.name}>'
 
 
-# class TreeNode:
-#     def __init__(self, token: Token):
-#         self.token = token
-#         self.children = []
-
-#     def add_child(self, node):
-#         self.children.append(node)
-
-#     def print_tree(self, indent=0):
-#         for i, child in enumerate(self.children):
-#             print("\n" + "  " * indent if i > 0 else "", end="")
-#             print(child.token, end="")
-#             child.print_tree(indent + 1)
-
-
 def parse_code(code):
     global tokens
     lines = code.split('\n')
@@ -297,7 +282,7 @@ def primary():
         expression()
         match(TokenClass.DELIMITADOR, ")")
     else:
-        raise SyntaxError("Token inesperado na expressão primária")
+        raise SyntaxError("\nToken inesperado na expressão primária")
 
 
 def function():
