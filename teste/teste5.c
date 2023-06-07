@@ -9,4 +9,3 @@ if(sum > 10) {
 } else {
   print "no";
 }
-
