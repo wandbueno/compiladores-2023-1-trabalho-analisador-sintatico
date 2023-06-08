@@ -121,7 +121,6 @@ def ifStmt():
     match(TokenClass.PALAVRA_RESERVADA, "if")
     match(TokenClass.DELIMITADOR, "(")
     expression()
-    # logic_or()
     match(TokenClass.DELIMITADOR, ")")
     statement()
     if check(TokenClass.PALAVRA_RESERVADA, "else"):
@@ -247,17 +246,15 @@ def unary():
 
 
 def call():
-    node = primary()
+    primary()
     while check(TokenClass.DELIMITADOR, "(") or check(TokenClass.DELIMITADOR, "."):
         if check(TokenClass.DELIMITADOR, "("):
             match(TokenClass.DELIMITADOR, "(")
-            if not check(TokenClass.DELIMITADOR, ")"):
-                arguments()
+            arguments()
             match(TokenClass.DELIMITADOR, ")")
-        else:
+        elif check(TokenClass.DELIMITADOR, "."):
             match(TokenClass.DELIMITADOR, ".")
-            match(TokenClass.IDENTIFICADOR, None)
-    return node
+            match(TokenClass.IDENTIFICADOR)
 
 
 # def primary():
@@ -284,29 +281,26 @@ def call():
 
 
 def primary():
-    if check(TokenClass.DELIMITADOR, "{"):
-        block()
     if check(TokenClass.PALAVRA_RESERVADA, "true") or \
        check(TokenClass.PALAVRA_RESERVADA, "false") or \
        check(TokenClass.PALAVRA_RESERVADA, "nil") or \
-       check(TokenClass.PALAVRA_RESERVADA, "this"):
-        next_token()
-    elif check(TokenClass.CONSTANTE_INTEIRA) or check(TokenClass.CONSTANTE_TEXTO):
-        next_token()
-    elif check(TokenClass.IDENTIFICADOR):
+       check(TokenClass.PALAVRA_RESERVADA, "this") or \
+       check(TokenClass.CONSTANTE_INTEIRA) or \
+       check(TokenClass.CONSTANTE_TEXTO) or \
+       check(TokenClass.IDENTIFICADOR):
         next_token()
     elif check(TokenClass.PALAVRA_RESERVADA, "super"):
-        next_token()
+        match(TokenClass.PALAVRA_RESERVADA, "super")
         match(TokenClass.DELIMITADOR, ".")
         match(TokenClass.IDENTIFICADOR)
     elif check(TokenClass.DELIMITADOR, "("):
-        next_token()
+        match(TokenClass.DELIMITADOR, "(")
         expression()
         match(TokenClass.DELIMITADOR, ")")
     else:
         token = None if end_of_file() else tokens[token_index]
         raise SyntaxError(
-            f"\nToken inesperado na expressão primária: {token.token_class.name} {token.lexeme}")
+            f"\nToken inesperado na expressão primária: {token.token_class.name} {token.lexeme}, linha {token.line}, coluna {token.column}")
 
 
 def function():

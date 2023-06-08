@@ -4,7 +4,7 @@ from function import parse_code, program
 
 def main():
     try:
-        with open('teste/teste5.c', 'r', encoding='utf-8') as f:
+        with open('teste/teste4.c', 'r', encoding='utf-8') as f:
             code = f.read()
 
         code = re.sub(r'/\*[\s\S]*?\*/', '', code)
