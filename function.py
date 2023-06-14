@@ -111,7 +111,7 @@ def statement():
         returnStmt()
     elif check(TokenClass.PALAVRA_RESERVADA, "while"):
         whileStmt()
-    elif check(TokenClass.PALAVRA_RESERVADA, "block"):
+    elif check(TokenClass.DELIMITADOR, "{"):
         block()
     else:
         exprStmt()
