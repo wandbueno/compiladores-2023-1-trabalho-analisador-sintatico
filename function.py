@@ -15,6 +15,7 @@ class TokenClass(Enum):
 
 
 token_index = 0
+previous_token = None
 
 
 @dataclass
@@ -178,12 +179,17 @@ def expression():
 
 
 def assignment():
-    logic_or()
     if check(TokenClass.IDENTIFICADOR):
         match(TokenClass.IDENTIFICADOR)
         if check(TokenClass.OPERADOR, "="):
             match(TokenClass.OPERADOR, "=")
             assignment()
+        else:
+            # função para voltar 1 token
+            prev_token()
+            logic_or()
+    else:
+        logic_or()
 
 
 def logic_or():
@@ -203,8 +209,7 @@ def logic_and():
 def equality():
     comparison()
     while check(TokenClass.OPERADOR, ["!=", "=="]):
-        operator = next_token().lexeme
-        match(TokenClass.OPERADOR, operator)
+        match(TokenClass.OPERADOR)
         comparison()
 
 
@@ -231,15 +236,13 @@ def term():
 def factor():
     unary()
     while check(TokenClass.DELIMITADOR, "/") or check(TokenClass.DELIMITADOR, "*"):
-        operator = next_token()
-        match(TokenClass.DELIMITADOR, operator)
+        match(TokenClass.DELIMITADOR)
         unary()
 
 
 def unary():
     if check(TokenClass.OPERADOR, "!") or check(TokenClass.OPERADOR, "-"):
-        operator = next_token()
-        match(TokenClass.OPERADOR, operator)
+        match(TokenClass.OPERADOR)
         unary()
     else:
         call()
@@ -255,29 +258,6 @@ def call():
         elif check(TokenClass.DELIMITADOR, "."):
             match(TokenClass.DELIMITADOR, ".")
             match(TokenClass.IDENTIFICADOR)
-
-
-# def primary():
-#     print("primary")
-#     if check(TokenClass.PALAVRA_RESERVADA, "true") or \
-#        check(TokenClass.PALAVRA_RESERVADA, "false") or \
-#        check(TokenClass.PALAVRA_RESERVADA, "nil") or \
-#        check(TokenClass.PALAVRA_RESERVADA, "this"):
-#         next_token()
-#     elif check(TokenClass.CONSTANTE_INTEIRA) or check(TokenClass.CONSTANTE_TEXTO):
-#         next_token()
-#     elif check(TokenClass.IDENTIFICADOR):
-#         next_token()
-#     elif check(TokenClass.PALAVRA_RESERVADA, "super"):
-#         next_token()
-#         match(TokenClass.DELIMITADOR, ".")
-#         match(TokenClass.IDENTIFICADOR)
-#     elif check(TokenClass.DELIMITADOR, "("):
-#         next_token()
-#         expression()
-#         match(TokenClass.DELIMITADOR, ")")
-#     else:
-#         raise SyntaxError("\nToken inesperado na expressão primária")
 
 
 def primary():
@@ -343,6 +323,7 @@ def check(expected_class, expected_value=None):
 
 
 def match(expected_token_class, expected_token_value=None, function_name=None):
+    global previous_token
     if not check(expected_token_class, expected_token_value):
         token = None if end_of_file() else tokens[token_index]
         expected_value_str = expected_token_value if expected_token_value is not None else "None"
@@ -352,6 +333,7 @@ def match(expected_token_class, expected_token_value=None, function_name=None):
         error_message = f"\nErro de análise sintática: Esperado {expected_token_class.name} {expected_value_str}, encontrado {found_token_class_str} {found_lexeme_str}{function_name_str}"
         error(error_message, token)
     else:
+        previous_token = tokens[token_index]
         next_token()
 
 
@@ -365,3 +347,11 @@ def next_token():
         return token
     else:
         return None
+
+
+def prev_token():
+    global token_index, previous_token
+    if token_index > 0:
+        token_index -= 1
+        previous_token = tokens[token_index]
+        return tokens[token_index]
