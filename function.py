@@ -235,8 +235,8 @@ def term():
 
 def factor():
     unary()
-    while check(TokenClass.DELIMITADOR, "/") or check(TokenClass.DELIMITADOR, "*"):
-        match(TokenClass.DELIMITADOR)
+    while check(TokenClass.OPERADOR, "/") or check(TokenClass.OPERADOR, "*"):
+        match(TokenClass.OPERADOR)
         unary()
 
 
